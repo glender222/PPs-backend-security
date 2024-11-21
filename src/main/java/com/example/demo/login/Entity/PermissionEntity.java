@@ -33,5 +33,8 @@ public class PermissionEntity {
 
     private String estado;
 
-
+    public PermissionEntity(String name, String estado) {
+        this.name = name;
+        this.estado = estado;
+    }
 }
