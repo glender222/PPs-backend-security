@@ -19,73 +19,31 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RoleServiceImpl implements RoleService{
-    
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
-    private final RoleMapper roleMapper;
-    // Método para validar el rol
-    public void validateRoleName(String roleName) {
-        try {
-            RoleEnum.valueOf(roleName);  // Validamos si el rol ingresado es válido
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("El rol ingresado no es válido: " + roleName);
-        }
+public class RoleServiceImpl implements RoleService{@Override
+    public RoleEntity createRole(RoleDTO roleDTO) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createRole'");
     }
 
-
-
     @Override
-    public RoleEntity createRole(RoleDTO roleDTO) {
-         // Primero, validamos el nombre del rol
-        validateRoleName(roleDTO.getRoleName());
-
-        // Obtener permisos del repository según los nombres en el DTO
-        Set<PermissionEntity> permissions = permissionRepository.findByNameIn(roleDTO.getPermissions())
-                .stream()
-                .collect(Collectors.toSet());
-
-        // Utilizamos el RoleMapper para convertir el DTO en una entidad
-        RoleEntity roleEntity = roleMapper.toEntity(roleDTO);
-
-        // Ajustamos el campo RoleEnum y permisos
-        roleEntity.setRoleEnum(RoleEnum.valueOf(roleDTO.getRoleName())); // Asignamos el RoleEnum correcto
-        roleEntity.setPermissionList(permissions);                        // Asignamos la lista de permisos
-
-        // Guardamos el rol en la base de datos
-        return roleRepository.save(roleEntity);
+    public RoleEntity assignPermissionsToRole(String roleName, List<String> permissions) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'assignPermissionsToRole'");
     }
 
     @Override
     public List<RoleEntity> getAllRoles() {
-        return roleRepository.findAll();
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllRoles'");
     }
+
     @Override
-    public RoleEntity assignPermissionsToRole(String roleName, List<String> permissions) {
-         // Validar el nombre del rol
-    validateRoleName(roleName);
-
-    // Buscar el rol en la base de datos por su RoleEnum
-    RoleEntity roleEntity = roleRepository.findByRoleEnum(RoleEnum.valueOf(roleName))
-            .orElseThrow(() -> new IllegalArgumentException("El rol no fue encontrado: " + roleName));
-
-    // Buscar permisos en la base de datos según los nombres proporcionados
-    Set<PermissionEntity> permissionsToAssign = permissionRepository.findByNameIn(permissions)
-            .stream()
-            .collect(Collectors.toSet());
-
-    // Validar si todos los permisos se encontraron
-    if (permissionsToAssign.size() != permissions.size()) {
-        throw new IllegalArgumentException("Algunos permisos proporcionados no fueron encontrados en el sistema");
+    public void validateRoleName(String roleName) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'validateRoleName'");
     }
-
-    // Asignar los permisos al rol
-    roleEntity.setPermissionList(permissionsToAssign);
-
-    // Guardar el rol actualizado en la base de datos
-    return roleRepository.save(roleEntity);
-
-    }
+    
+    
 
 }
     

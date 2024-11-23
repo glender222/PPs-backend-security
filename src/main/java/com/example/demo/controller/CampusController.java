@@ -124,3 +124,41 @@ public class CampusController {
         return ResponseEntity.ok(escuelaProfesionalService.findByFacultadId(facultadId));
     }
 }
+
+
+
+/*
+ * peticiones postman 
+ *  POST
+ * http://localhost:8080/mantener/campus
+ * 
+ * {
+ *  "sede" : "juliaca"
+ *  }
+ * 
+ * http://localhost:8080/mantener/facultad
+ * {
+ *   "nombre": "Facultad de Ingeniería",
+ *   "idCampus": 1
+ *   }
+ *
+ * http://localhost:8080/mantener/escuela
+ * {
+ *   "carrera": "Ingeniería ambiental",
+ *   "idFacultad": 1
+ * } 
+ *
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
