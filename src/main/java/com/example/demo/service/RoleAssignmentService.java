@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,4 +57,32 @@ public class RoleAssignmentService {
 
         return roleAssignmentMapper.toDto(role, facultad, escuela);
     }
+
+
+  // Nuevo método GET - Listar todos
+  public List<RoleAssignmentDTO> getAllRoleAssignments() {
+    return roleRepository.findAll().stream()
+        .map(role -> {
+            List<EscuelaProfesional> escuelas = escuelaProfesionalRepository
+                .findAllByRoleId(role.getId());
+            EscuelaProfesional escuela = escuelas.isEmpty() ? null : escuelas.get(0);
+            Facultad facultad = escuela != null ? escuela.getFacultad() : null;
+            return roleAssignmentMapper.toDto(role, facultad, escuela);
+        })
+        .collect(Collectors.toList());
 }
+    
+    // Método GET - Obtener por ID (completado)
+    public RoleAssignmentDTO getRoleAssignmentById(Long id) {
+        RoleEntity role = roleRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+            
+        List<EscuelaProfesional> escuelas = escuelaProfesionalRepository
+            .findAllByRoleId(id);
+        EscuelaProfesional escuela = escuelas.isEmpty() ? null : escuelas.get(0);
+        Facultad facultad = escuela != null ? escuela.getFacultad() : null;
+        
+        return roleAssignmentMapper.toDto(role, facultad, escuela);
+    }
+}
+

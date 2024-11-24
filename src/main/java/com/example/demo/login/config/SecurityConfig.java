@@ -47,6 +47,28 @@ public class SecurityConfig {
        
         
     };
+    private static final String[] COORDINADOR_URLS = {
+
+        "/asignar/**"
+        
+    };
+    private static final String[] SECRETARIA_URLS = {
+        
+        "/asignar/**"
+        
+    };
+    private static final String[] DIRECTOR_URLS = {
+        
+        "/asignar/**"
+        
+    };
+    private static final String[] TUTOR_URLS = {
+        
+        "/asignar/**"
+        
+    };
+
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -80,6 +102,10 @@ public class SecurityConfig {
                     http.requestMatchers(PUBLIC_URLS).permitAll()
                     .requestMatchers(ADMIN_URLS).hasRole("ADMIN")
                     .requestMatchers(PRACTICANTE_URLS).hasRole("PRACTICANTE")
+                    .requestMatchers(COORDINADOR_URLS).hasRole("COORDINADOR")
+                    .requestMatchers(SECRETARIA_URLS).hasRole("SECRETARIA")
+                    .requestMatchers(DIRECTOR_URLS).hasRole("DIRECTOR")
+                    .requestMatchers(TUTOR_URLS).hasRole("TUTOR")
                         .anyRequest().authenticated();
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
