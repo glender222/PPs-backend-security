@@ -45,4 +45,9 @@ public class EscuelaProfesional {
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy = "escuelaProfesional")
 	@JsonIgnore
 	private Set<Practicante_EP> practicante_EP;
+
+
+    @OneToMany(mappedBy = "escuelaProfesional", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Coordinador> coordinadores;
 }

@@ -32,3 +32,26 @@ public class RolController {
 
 
 }
+
+
+
+
+
+
+
+
+/*
+ * http://localhost:8080/asignar/rol
+ * {
+ *   "roleEnum": "COORDINADOR",
+ *   "facultadId": 1,
+ *   "escuelaId": 1,
+ *   "permissions": [
+ *       "GESTIONAR CURSOS",
+ *       "VER ESTUDIANTES"  ]
+ * }
+ * 
+ * 
+ * 
+ * 
+ */

@@ -1,18 +1,13 @@
 package com.example.demo.serviceImpl;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Dto.RoleDTO;
-import com.example.demo.Mappers.RoleMapper;
-import com.example.demo.login.Entity.PermissionEntity;
+
 import com.example.demo.login.Entity.RoleEntity;
-import com.example.demo.login.Entity.RoleEnum;
-import com.example.demo.login.Repository.PermissionRepository;
-import com.example.demo.login.Repository.RoleRepository;
+
 import com.example.demo.service.RoleService;
 
 import lombok.RequiredArgsConstructor;

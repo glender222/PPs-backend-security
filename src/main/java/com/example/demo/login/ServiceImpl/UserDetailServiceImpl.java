@@ -3,6 +3,7 @@ package com.example.demo.login.ServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,18 @@ import org.springframework.stereotype.Service;
 import com.example.demo.Dto.AuthCreateUserRequest;
 import com.example.demo.Dto.AuthLoginRequest;
 import com.example.demo.Dto.AuthResponse;
+import com.example.demo.entity.EscuelaProfesional;
+import com.example.demo.entity.Persona;
 import com.example.demo.login.Entity.RoleEntity;
+import com.example.demo.login.Entity.RoleEnum;
 import com.example.demo.login.Entity.UserEntity;
 import com.example.demo.login.Repository.RoleRepository;
 import com.example.demo.login.Repository.UserRepository;
 import com.example.demo.login.config.JwtUtils;
+import com.example.demo.repository.EscuelaProfesionalRepository;
+import com.example.demo.repository.PersonaRepository;
+import com.example.demo.service.CoordinadorService;
+import com.example.demo.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +54,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+ private final PersonaRepository personaRepository;
+    private final EscuelaProfesionalRepository escuelaProfesionalRepository;
+    private final CoordinadorService coordinadorService;
+    private final EmailService emailService;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -117,18 +131,64 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new IllegalArgumentException("No se encontraron roles válidos");
         }
 
+        // Obtener carrera
+        EscuelaProfesional carrera = escuelaProfesionalRepository.findById(request.carreraId())
+            .orElseThrow(() -> new IllegalArgumentException("Carrera no encontrada"));
+
+        // Crear persona
+        Persona persona = Persona.builder()
+            .nombre(request.nombre())
+            .apellido(request.apellido())
+            .correoElectronico(request.correoElectronico())
+            .direccion(request.direccion())
+            .dni(request.dni())
+            .nacionalidad(request.nacionalidad())
+            .telefono(request.telefono())
+            .build();
+
+        personaRepository.save(persona);
+
+        // Generar contraseña aleatoria
+        String generatedPassword = generateRandomPassword();
+
         // Crear usuario
         UserEntity newUser = UserEntity.builder()
             .username(request.username())
-            .password(passwordEncoder.encode(request.password()))
+            .password(passwordEncoder.encode(generatedPassword))
             .roles(roles)
             .isEnabled(true)
             .accountNoLocked(true)
             .accountNoExpired(true)
             .credentialNoExpired(true)
+            .persona(persona)
             .build();
 
         userRepository.save(newUser);
+
+        // Delegar la creación específica del rol Coordinador
+        if (roles.stream().anyMatch(role -> role.getRoleEnum() == RoleEnum.COORDINADOR)) {
+            coordinadorService.createCoordinador(persona, carrera);
+        }
+
+        // Enviar correo electrónico con la contraseña generada
+        emailService.sendEmail(
+            request.correoElectronico(),
+            "Bienvenido al Sistema de Prácticas Pre-Profesionales",
+            String.format(
+                "Estimado(a) %s %s,%n%n" +
+                "Le damos la bienvenida al Sistema de Prácticas Pre-Profesionales.%n%n" +
+                "Sus credenciales de acceso son:%n" +
+                "Usuario: %s%n" +
+                "Contraseña: %s%n%n" +
+                "Por su seguridad, le recomendamos cambiar su contraseña en su primer inicio de sesión.%n%n" +
+                "Atentamente,%n" +
+                "Equipo de Prácticas Pre-Profesionales",
+                request.nombre(),
+                request.apellido(),
+                request.username(),
+                generatedPassword
+            )
+        );
 
         // Crear autenticación
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -140,6 +200,16 @@ public class UserDetailServiceImpl implements UserDetailsService {
         String token = jwtUtils.createToken(authentication);
         return new AuthResponse(request.username(), "Usuario creado exitosamente", token, true);
     }
+
+ // Definir el método generateRandomPassword
+ private String generateRandomPassword() {
+    // Implementar lógica para generar una contraseña aleatoria
+    return UUID.randomUUID().toString();
+}
+
+
+
+
 
     private List<SimpleGrantedAuthority> getAuthorities(UserEntity user) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
