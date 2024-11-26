@@ -28,10 +28,10 @@ public class Linea {
     @Column(name = "nombre", length = 250)
     private String nombre;
 
-    @Column(name = "estado", length = 1)
+    @Column(name = "estado", length = 150)
     private String estado;
     
-    @Column(name = "Nota_max", length = 1)
+    @Column(name = "Nota_max", length = 150)
     private String nota_max;
     
     @OneToOne(mappedBy = "linea")

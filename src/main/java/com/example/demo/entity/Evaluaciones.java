@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+/*package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,3 +49,4 @@ public class Evaluaciones {
 	@JoinColumn(name="id_PPP", nullable = false)
 	private PPP ppp ;
 }
+*/

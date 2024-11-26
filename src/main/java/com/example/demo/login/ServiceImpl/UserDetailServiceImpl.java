@@ -23,8 +23,10 @@ import com.example.demo.Dto.AuthCreateUserRequest;
 import com.example.demo.Dto.AuthLoginRequest;
 import com.example.demo.Dto.AuthResponse;
 import com.example.demo.Dto.DirectoraCreateRequest;
+import com.example.demo.Dto.PracticanteCreateRequest;
 import com.example.demo.entity.Directora;
 import com.example.demo.entity.EscuelaProfesional;
+import com.example.demo.entity.Linea;
 import com.example.demo.entity.Persona;
 import com.example.demo.login.Entity.RoleEntity;
 import com.example.demo.login.Entity.RoleEnum;
@@ -34,9 +36,11 @@ import com.example.demo.login.Repository.UserRepository;
 import com.example.demo.login.config.JwtUtils;
 import com.example.demo.repository.DirectoraRepository;
 import com.example.demo.repository.EscuelaProfesionalRepository;
+import com.example.demo.repository.LineaRepository;
 import com.example.demo.repository.PersonaRepository;
 import com.example.demo.service.CoordinadorService;
 import com.example.demo.service.EmailService;
+import com.example.demo.service.PracticanteService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +67,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final CoordinadorService coordinadorService;
     private final EmailService emailService;
     private final DirectoraRepository directoraRepository;
+    private final LineaRepository lineaRepository;
+    private final PracticanteService practicanteService;
 
 
     @Override
@@ -76,10 +82,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
         userEntity.getRoles()
                 .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRoleEnum().name()))));
 
-        userEntity.getRoles().stream()
+       /*   userEntity.getRoles().stream()
                 .flatMap(role -> role.getPermissionList().stream())
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));*/
 
+
+                
         return new User(userEntity.getUsername(),
                 userEntity.getPassword(),
                 userEntity.isEnabled(),
@@ -331,6 +339,73 @@ SecurityContextHolder.getContext().setAuthentication(authentication);
             token,
             true
         );
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
     }
 
 
@@ -342,21 +417,108 @@ SecurityContextHolder.getContext().setAuthentication(authentication);
 
 
 
+  public AuthResponse createPracticante(PracticanteCreateRequest request) {
+        // Verificar usuario existente
+        if (userRepository.findUserEntityByUsername(request.username()).isPresent()) {
+            throw new IllegalArgumentException("El usuario ya existe");
+        }
 
+        // Crear persona
+        Persona persona = Persona.builder()
+            .nombre(request.nombre())
+            .apellido(request.apellido())
+            .correoElectronico(request.correoElectronico())
+            .dni(request.dni())
+            .telefono(request.telefono())
+            .direccion(request.direccion())
+            .sexo(request.sexo())
+            .nacionalidad(request.nacionalidad())
+            .build();
+        personaRepository.save(persona);
 
+        String generatedPassword = generateRandomPassword();
 
+        // Obtener rol PRACTICANTE
+        Set<RoleEntity> roles = Set.of(roleRepository.findByRoleEnum(RoleEnum.PRACTICANTE)
+            .orElseThrow(() -> new IllegalArgumentException("Rol PRACTICANTE no encontrado")));
 
+        // Crear usuario
+        UserEntity user = UserEntity.builder()
+            .username(request.username())
+            .password(passwordEncoder.encode(generatedPassword))
+            .roles(roles)
+            .isEnabled(true)
+            .accountNoLocked(true)
+            .accountNoExpired(true)
+            .credentialNoExpired(true)
+            .persona(persona)
+            .build();
+        userRepository.save(user);
 
+        // Obtener escuela y línea
+        EscuelaProfesional escuela = escuelaProfesionalRepository.findById(request.escuelaId())
+            .orElseThrow(() -> new IllegalArgumentException("Escuela no encontrada"));
+        
+        Linea linea = lineaRepository.findById(request.lineaId())
+            .orElseThrow(() -> new IllegalArgumentException("Línea no encontrada"));
 
+        // Crear practicante y relacionados
+        practicanteService.createPracticante(
+            persona,
+            escuela,
+            request.añoEstudio(),
+            linea,
+            request.codigo()
+        );
 
+        // Enviar email
+        String emailText = String.format(
+            "Estimado(a) Practicante %s %s,%n%n" +
+            "Le damos la bienvenida al Sistema de Prácticas Pre-Profesionales.%n%n" +
+            "Sus credenciales de acceso son:%n" +
+            "Usuario: %s%n" +
+            "Contraseña: %s%n%n" +
+            "Por favor, cambie su contraseña al iniciar sesión.%n%n" +
+            "Atentamente,%n" +
+            "Equipo de Prácticas Pre-Profesionales",
+            persona.getNombre(),
+            persona.getApellido(),
+            request.username(),
+            generatedPassword
+        );
 
+        emailService.sendEmail(request.correoElectronico(), "Bienvenida al Sistema", emailText);
 
+        // Autenticación y token
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            user.getUsername(),
+            null,
+            getAuthorities(user)
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
-
-
-
-
-
+        String token = jwtUtils.createToken(authentication);
+        return new AuthResponse(
+            user.getUsername(),
+            "Practicante creado exitosamente",
+            token,
+            true
+        );
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

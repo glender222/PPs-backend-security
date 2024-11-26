@@ -51,7 +51,10 @@ public class SecurityConfig {
     private static final String[] COORDINADOR_URLS = {
         "/tipodocumentaciones/**",
         "/documentos/**",
-        "/asignar/**"
+        "/asignar/**",
+        "/users/**",
+        "/practicantelogin/**",
+        "/lineas/**"
         
     };
     private static final String[] SECRETARIA_URLS = {

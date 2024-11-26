@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+/*package com.example.demo.entity;
 
 import java.util.Set;
 
@@ -40,3 +40,4 @@ public class DetalleEvaluaciones {
 	@JsonIgnore
 	private Set<Evaluaciones> evaluaciones;
 }
+*/
