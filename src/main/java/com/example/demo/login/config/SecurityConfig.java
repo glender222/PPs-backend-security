@@ -37,18 +37,20 @@ public class SecurityConfig {
     };
     private static final String[] ADMIN_URLS = {
         "/mantener/**",
-        "/asignar/**"
-        
+        "/asignar/**",
+        "/roles/**",
+        "/users/**"
     };
 
     private static final String[] PRACTICANTE_URLS = {
-        "/api/documentos/**",
-        "/api/documentaciones/**"
-       
+        
+    "/tipodocumentaciones/**",
+         "documentos/**"
         
     };
     private static final String[] COORDINADOR_URLS = {
-
+        "/tipodocumentaciones/**",
+        "/documentos/**",
         "/asignar/**"
         
     };

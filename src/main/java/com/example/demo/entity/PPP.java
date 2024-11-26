@@ -6,6 +6,8 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,17 +31,22 @@ public class PPP {
     @SequenceGenerator(name = "ppp_seq_gen", sequenceName = "ppp_seq_gen", allocationSize = 1)
     private Long id;
 
+    @NotNull
     @Column(name = "horas")
     private Integer horas;
 
+
+    @NotNull
     @Column(name = "modalidad", length = 215)
     private String modalidad;
 
+    @NotNull
     @Column(name = "estado", length = 1)
     private String estado;
 
+    
     @ManyToOne
-    @JoinColumn(name = "id_empresa", nullable = false)
+    @JoinColumn(name = "id_empresa", nullable = true)
     @JsonIgnore
     private Empresa empresa;
 
@@ -49,18 +56,22 @@ public class PPP {
     @JsonIgnore
     private AreaPracticas area_practicas;
    
+
+    
     @ManyToOne
     @JoinColumn(name = "idtutor", nullable = true)
     @JsonIgnore
     private Tutores tutores;
 
     
-
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "id_practicante_EP", nullable = false)
     @JsonIgnore
     private Practicante_EP practicante_EP;
 
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "id_jefe_empresarial", nullable = false)
     @JsonIgnore
@@ -68,11 +79,13 @@ public class PPP {
    
    
 
-
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)  
     @Column(name = "fecha_inicio")
     private Date fechaInicio;
 
+
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)  
     @Column(name = "fecha_fin")
     private Date fechaFin;

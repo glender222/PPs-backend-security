@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.entity.Documentacion;
 import com.example.demo.service.DocumentacionService;
+import com.example.demo.service.PPPService;
+import com.example.demo.service.Practicante_EPService;
 import com.example.demo.service.TipoDocumentoService;
 
 import jakarta.validation.Valid;
@@ -30,17 +32,21 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/api/documentaciones")
+@RequestMapping("/documentos")
 @PreAuthorize("hasRole('PRACTICANTE')") 
 @CrossOrigin(origins = {"http://localhost:4200"})
 public class DocumentacionController {
 
   @Autowired
-    @Lazy
     private DocumentacionService documentacionService;
 
     @Autowired
-    @Lazy    private TipoDocumentoService tipoDocumentoService;
+    private TipoDocumentoService tipoDocumentoService;
+
+ 
+
+    @Autowired
+    private  Practicante_EPService practicante_EPService;
 
     @GetMapping
     public ResponseEntity<List<Documentacion>> readAll() {

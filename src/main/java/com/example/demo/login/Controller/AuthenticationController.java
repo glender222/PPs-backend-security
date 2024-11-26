@@ -1,6 +1,7 @@
 package com.example.demo.login.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +16,7 @@ import com.example.demo.Dto.AuthResponse;
 import com.example.demo.login.ServiceImpl.UserDetailServiceImpl;
 
 import jakarta.validation.Valid;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -53,4 +55,12 @@ public class AuthenticationController {
                 .body(new AuthResponse(null, "Error al crear usuario: " + e.getMessage(), null, false));
         }
     }
+
+
+
+
+
+
+
+
 }

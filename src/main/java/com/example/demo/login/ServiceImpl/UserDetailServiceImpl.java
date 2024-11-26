@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import com.example.demo.Dto.AuthCreateUserRequest;
 import com.example.demo.Dto.AuthLoginRequest;
 import com.example.demo.Dto.AuthResponse;
+import com.example.demo.Dto.DirectoraCreateRequest;
+import com.example.demo.entity.Directora;
 import com.example.demo.entity.EscuelaProfesional;
 import com.example.demo.entity.Persona;
 import com.example.demo.login.Entity.RoleEntity;
@@ -30,6 +32,7 @@ import com.example.demo.login.Entity.UserEntity;
 import com.example.demo.login.Repository.RoleRepository;
 import com.example.demo.login.Repository.UserRepository;
 import com.example.demo.login.config.JwtUtils;
+import com.example.demo.repository.DirectoraRepository;
 import com.example.demo.repository.EscuelaProfesionalRepository;
 import com.example.demo.repository.PersonaRepository;
 import com.example.demo.service.CoordinadorService;
@@ -59,6 +62,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final EscuelaProfesionalRepository escuelaProfesionalRepository;
     private final CoordinadorService coordinadorService;
     private final EmailService emailService;
+    private final DirectoraRepository directoraRepository;
 
 
     @Override
@@ -115,6 +119,14 @@ public class UserDetailServiceImpl implements UserDetailsService {
             userDetails.getAuthorities()
         );
     }
+
+
+
+
+
+
+
+
 
     public AuthResponse createUser(AuthCreateUserRequest request) {
         // Verificar si el usuario ya existe
@@ -211,6 +223,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 
 
+
+
+
+
     private List<SimpleGrantedAuthority> getAuthorities(UserEntity user) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> {
@@ -220,4 +236,127 @@ public class UserDetailServiceImpl implements UserDetailsService {
         });
         return authorities;
     }
+
+
+
+   public List<UserEntity> getAllUsers() {
+        return userRepository.findAllWithPersona(); // Using optimized query
+    }
+ 
+
+
+
+
+
+    public AuthResponse createDirectora(DirectoraCreateRequest request) {
+        // Verificar usuario existente
+        if (userRepository.findUserEntityByUsername(request.username()).isPresent()) {
+            throw new IllegalArgumentException("El usuario ya existe");
+        }
+
+        // Crear persona
+        Persona persona = Persona.builder()
+            .nombre(request.nombre())
+            .apellido(request.apellido())
+            .correoElectronico(request.correoElectronico())
+            .dni(request.dni())
+            .telefono(request.telefono())
+            .build();
+        personaRepository.save(persona);
+
+        // Generar contraseña
+        String generatedPassword = generateRandomPassword();
+
+        // Obtener rol DIRECTOR
+        Set<RoleEntity> roles = Set.of(roleRepository.findByRoleEnum(RoleEnum.DIRECTOR)
+            .orElseThrow(() -> new IllegalArgumentException("Rol DIRECTOR no encontrado")));
+
+        // Obtener carrera
+        EscuelaProfesional carrera = escuelaProfesionalRepository.findById(request.carreraId())
+            .orElseThrow(() -> new IllegalArgumentException("Carrera no encontrada"));
+
+        // Crear directora
+        Directora directora = new Directora();
+        directora.setPersona(persona);
+        directora.setEscuelaProfesional(carrera);
+        directora.setFirma(request.firma());
+        directora.setSello(request.sello());
+        directoraRepository.save(directora);
+
+        // Crear usuario
+        UserEntity user = UserEntity.builder()
+            .username(request.username())
+            .password(passwordEncoder.encode(generatedPassword))
+            .roles(roles)
+            .isEnabled(true)
+            .accountNoLocked(true)
+            .accountNoExpired(true)
+            .credentialNoExpired(true)
+            .persona(persona)
+            .build();
+        userRepository.save(user);
+
+        // Enviar email con credenciales
+        String emailText = String.format(
+            "Estimada Directora %s %s,%n%n" +
+            "Le damos la bienvenida al Sistema de Prácticas Pre-Profesionales.%n%n" +
+            "Sus credenciales de acceso son:%n" +
+            "Usuario: %s%n" +
+            "Contraseña: %s%n%n" +
+            "Por favor, cambie su contraseña al iniciar sesión.%n%n" +
+            "Atentamente,%n" +
+            "Equipo de Prácticas Pre-Profesionales",
+            persona.getNombre(),
+            persona.getApellido(),
+            request.username(),
+            generatedPassword
+        );
+
+        emailService.sendEmail(request.correoElectronico(), "Bienvenida al Sistema", emailText);
+ 
+ // Crear autenticación
+ Authentication authentication = new UsernamePasswordAuthenticationToken(
+    user.getUsername(),
+    null,
+    getAuthorities(user)
+);
+SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+        // Generar token
+        String token = jwtUtils.createToken(authentication);
+        return new AuthResponse(
+            user.getUsername(),
+            "Directora creada exitosamente",
+            token,
+            true
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+

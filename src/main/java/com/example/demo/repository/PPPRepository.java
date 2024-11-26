@@ -9,10 +9,6 @@ import com.example.demo.entity.PPP;
 public interface PPPRepository extends JpaRepository<PPP, Long>{
 
 
-//DIAGRAMA DE CLASE DE DISEÑO 
-
-//DIAGRA
-
 
 
 }
