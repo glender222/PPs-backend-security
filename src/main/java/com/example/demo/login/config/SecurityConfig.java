@@ -43,10 +43,9 @@ public class SecurityConfig {
     };
 
     private static final String[] PRACTICANTE_URLS = {
-        
-    "/tipodocumentaciones/**",
-         "documentos/**"
-        
+          "/cartapresentacion/**",
+        "/tipodocumentacioneprac/**",
+        "/tipodocumentacionesPRAC/**"
     };
     private static final String[] COORDINADOR_URLS = {
         "/tipodocumentaciones/**",
@@ -54,7 +53,9 @@ public class SecurityConfig {
         "/asignar/**",
         "/users/**",
         "/practicantelogin/**",
-        "/lineas/**"
+        "/lineas/**",
+        "/mantenercord/**"
+
         
     };
     private static final String[] SECRETARIA_URLS = {
@@ -102,7 +103,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->  
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-
+                   
 
                     http.requestMatchers(PUBLIC_URLS).permitAll()
                     .requestMatchers(ADMIN_URLS).hasRole("ADMIN")

@@ -33,8 +33,7 @@ public class Documentacion {
     @Lob
     private byte[] archivo;
 
-    @Column(name = "nombre")
-    private String nombre;
+   
 
     @Column(name = "estado", length = 1)
     private String estado;

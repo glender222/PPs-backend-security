@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
-
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,29 +22,22 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.entity.Documentacion;
 import com.example.demo.entity.PPP;
 import com.example.demo.service.DocumentacionService;
-import com.example.demo.service.Practicante_EPService;
 import com.example.demo.service.TipoDocumentoService;
 
-import jakarta.validation.Valid;
 
 
 
 @RestController
-@RequestMapping("/documentos")
-@PreAuthorize("hasRole('COORDINADOR')") 
+@RequestMapping("/tipodocumentacionesPRAC")
+@PreAuthorize("hasRole('PRACTICANTE') ")
 @CrossOrigin(origins = {"http://localhost:4200"})
-public class DocumentacionController {
- @Autowired
-    private DocumentacionService documentacionService;
 
-    @Autowired
-    private TipoDocumentoService tipoDocumentoService;
-
-
-    @Autowired
-    private Practicante_EPService practicante_EPService;
-    // Obtener todos los documentos
-    @GetMapping
+public class TipoDocumentoPracController {
+@Autowired
+private TipoDocumentoService tipodocumentoService;
+@Autowired
+private DocumentacionService documentacionService;
+@GetMapping
     public ResponseEntity<List<Documentacion>> readAll() {
         try {
             List<Documentacion> documentaciones = documentacionService.readAll();
@@ -72,7 +63,7 @@ public class DocumentacionController {
 
             // Crear la entidad Documentacion
             Documentacion documentacion = new Documentacion();
-            documentacion.setTipo_documento(tipoDocumentoService.read(idTipoDocumento)); // Obtener tipo_documento
+            documentacion.setTipo_documento(tipodocumentoService.read(idTipoDocumento)); // Obtener tipo_documento
             documentacion.setPracticas(new PPP(idPpp)); // Asociar PPP usando el nuevo constructor
             documentacion.setArchivo(archivo.getBytes()); // Guardar archivo como bytes
             documentacion.setEstado("A");
@@ -163,6 +154,5 @@ public class DocumentacionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
 }

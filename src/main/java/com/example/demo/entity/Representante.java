@@ -38,7 +38,7 @@ public class Representante {
     @Column(name = "telefono", length = 215)
     private String telefono;
 
-    @Column(name = "correo_elec", length = 1)
+    @Column(name = "correo_elec", length = 255)  // Aumentar la longitud a 255
     private String correo_elec;
 
     @ManyToOne

@@ -505,6 +505,12 @@ SecurityContextHolder.getContext().setAuthentication(authentication);
             true
         );
     }
+
+
+     
+    public List<UserEntity> getAllPracticantes() {
+        return userRepository.findByRoles_RoleEnum(RoleEnum.PRACTICANTE);
+    }
 }
 
 

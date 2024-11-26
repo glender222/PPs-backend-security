@@ -121,4 +121,15 @@ private Set<Programacion> programacions;
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy = "practicas")
 	@JsonIgnore
 	private Set<Documentacion> documentacion;
+
+
+
+    
+
+    public PPP(Long id) {
+        this.id = id;
+    }
+
+
 }
+
