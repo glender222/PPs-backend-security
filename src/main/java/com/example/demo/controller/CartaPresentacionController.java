@@ -39,6 +39,7 @@ public class CartaPresentacionController {
     private final UserRepository userRepository;
 
     @PutMapping("/comenzarcarta")
+    @PreAuthorize("hasRole('PRACTICANTE')")
     public ResponseEntity<?> actualizarCartaPresentacion(
             @Valid @RequestBody CartaPresentacionDto dto,
             Authentication authentication) {
@@ -103,6 +104,7 @@ public class CartaPresentacionController {
     }
 
     @GetMapping("/micarta")
+    @PreAuthorize("hasRole('PRACTICANTE')")
     public ResponseEntity<?> obtenerCartaPresentacion(Authentication authentication) {
         try {
             // Obtener el usuario autenticado
