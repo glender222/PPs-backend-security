@@ -41,5 +41,14 @@ public class Linea {
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy = "linea")
    	@JsonIgnore
    	private Set<PPP> practicas;
+
+
+    //implementado
+       @ManyToMany(mappedBy = "lineas")
+       @JsonIgnore
+       private Set<EscuelaProfesional> escuelasProfesionales;
+
+
+
 }
 

@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,7 @@ import com.example.demo.entity.PPP;
 public interface PPPRepository extends JpaRepository<PPP, Long>{
     @Query("SELECT p FROM PPP p WHERE p.practicante_EP.practicante.persona.id = :personaId")
     Optional<PPP> findByPersonaId(@Param("personaId") Long personaId);
+
+    List<PPP> findByLineaId(Long idLinea);
+
 }

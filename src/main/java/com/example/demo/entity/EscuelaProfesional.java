@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -50,4 +51,13 @@ public class EscuelaProfesional {
     @OneToMany(mappedBy = "escuelaProfesional", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Coordinador> coordinadores;
+
+//implementado
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "escuela_linea",
+        joinColumns = @JoinColumn(name = "escuela_id"),
+        inverseJoinColumns = @JoinColumn(name = "linea_id")
+    )
+    private Set<Linea> lineas = new HashSet<>();
 }
