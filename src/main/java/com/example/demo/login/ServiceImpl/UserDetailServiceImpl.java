@@ -459,15 +459,15 @@ SecurityContextHolder.getContext().setAuthentication(authentication);
         EscuelaProfesional escuela = escuelaProfesionalRepository.findById(request.escuelaId())
             .orElseThrow(() -> new IllegalArgumentException("Escuela no encontrada"));
         
-        Linea linea = lineaRepository.findById(request.lineaId())
-            .orElseThrow(() -> new IllegalArgumentException("Línea no encontrada"));
+        // Linea linea = lineaRepository.findById(request.lineaId())
+        //     .orElseThrow(() -> new IllegalArgumentException("Línea no encontrada"));
 
         // Crear practicante y relacionados
         practicanteService.createPracticante(
             persona,
             escuela,
             request.añoEstudio(),
-            linea,
+            // linea,
             request.codigo()
         );
 

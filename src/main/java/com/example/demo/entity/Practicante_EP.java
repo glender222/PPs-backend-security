@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,9 +23,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 
-@EqualsAndHashCode(callSuper=false)
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -32,6 +33,8 @@ import lombok.Setter;
 @Entity
 @Data
 @Table(name = "practicante_EP")
+@ToString(exclude = "practicas") // Excluir de ToString
+@EqualsAndHashCode(callSuper=false) // Excluir de equals/hashCode
 public class Practicante_EP {
 	
 	@Id
@@ -54,5 +57,11 @@ public class Practicante_EP {
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy = "practicante_EP")
 	@JsonIgnore
-	private Set<PPP> practicas;
+	private Set<PPP> practicas = new HashSet<>(); // Inicializar el Set
+	
+	// Método helper para mantener la bidireccionalidad
+    public void addPPP(PPP ppp) {
+        practicas.add(ppp);
+        ppp.setPracticante_EP(this);
+    }
 }

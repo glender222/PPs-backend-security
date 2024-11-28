@@ -1,15 +1,20 @@
 package com.example.demo.service;
 
-import java.util.List;
- 
+
+
+import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Representante;
+import com.example.demo.repository.RepresentanteRepository;
 
+import lombok.RequiredArgsConstructor;
 
-public interface RepresentanteService {
-	Representante create(Representante c);
-	Representante update(Representante c);
-	void delete(Long id);
-	Representante read(Long id);
-	List<Representante> readAll();
+@Service
+@RequiredArgsConstructor
+public class RepresentanteService {
+	  private final RepresentanteRepository representanteRepository;
+
+    public Representante save(Representante representante) {
+        return representanteRepository.save(representante);
+    }
 }

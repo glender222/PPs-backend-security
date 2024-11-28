@@ -40,7 +40,7 @@ public class PPP {
     private String modalidad;
 
     @NotBlank
-    @Column(name = "estado", length = 1)
+    @Column(name = "estado", length = 215)
     private String estado;
 
     
@@ -64,15 +64,15 @@ public class PPP {
 
     
     
-    @ManyToOne
-    @JoinColumn(name = "id_practicante_EP", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PRACTICANTEEP") 
     @JsonIgnore
     private Practicante_EP practicante_EP;
 
 
     
     @ManyToOne
-    @JoinColumn(name = "id_jefe_empresarial", nullable = false)
+    @JoinColumn(name = "id_jefe_empresarial", nullable = true)
     @JsonIgnore
     private JefeEmpresarial jefeEmpresarial;
    

@@ -45,7 +45,8 @@ public class SecurityConfig {
     private static final String[] PRACTICANTE_URLS = {
           "/cartapresentacion/**",
         "/tipodocumentacioneprac/**",
-        "/tipodocumentacionesPRAC/**"
+        "/tipodocumentacionesPRAC/**",
+        "/ppp/**",
     };
     private static final String[] COORDINADOR_URLS = {
         "/tipodocumentaciones/**",
@@ -54,7 +55,8 @@ public class SecurityConfig {
         "/users/**",
         "/practicantelogin/**",
         "/lineas/**",
-        "/mantenercord/**"
+        "/mantenercord/**",
+        "/pppcordinador/**",
 
         
     };

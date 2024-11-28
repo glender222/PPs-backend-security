@@ -89,13 +89,13 @@ public class CartaPresentacionController {
                         return areaPracticasRepository.save(nuevaArea);
                     });
 
-            // Actualizar PPP
+            // Actualizar PPP con estado PENDIENTE en lugar de "1"
             ppp.setEmpresa(empresa);
             ppp.setArea_practicas(areaPracticas); // Usa el setter correcto
-            ppp.setEstado("1");
+            ppp.setEstado("PENDIENTE");
             pppRepository.save(ppp);
 
-            return ResponseEntity.ok("Carta de presentación actualizada correctamente");
+            return ResponseEntity.ok("Carta de presentación enviada para revisión");
         } catch (Exception e) {
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

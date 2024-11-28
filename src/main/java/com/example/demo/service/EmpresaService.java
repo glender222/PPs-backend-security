@@ -1,16 +1,25 @@
 package com.example.demo.service;
 
-import java.util.List;
- 
+
+import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Empresa;
+import com.example.demo.repository.EmpresaRepository;
 
+import lombok.RequiredArgsConstructor;
 
+@Service
+@RequiredArgsConstructor
 
-public interface EmpresaService {
-	Empresa create(Empresa c);
-	Empresa update(Empresa c);
-	void delete(Long id);
-	Empresa read(Long id);
-	List<Empresa> readAll();
+public class EmpresaService {
+	private final EmpresaRepository empresaRepository;
+
+    public Empresa findById(Long id) {
+        return empresaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
+    }
+
+    public Empresa save(Empresa empresa) {
+        return empresaRepository.save(empresa);
+    }
 }

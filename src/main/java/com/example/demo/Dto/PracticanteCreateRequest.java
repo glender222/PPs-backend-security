@@ -17,6 +17,6 @@ public record PracticanteCreateRequest(
     String nacionalidad,
     @NotBlank String codigo,
     @NotBlank String añoEstudio,
-    @NotNull @Positive Long escuelaId,
-    @NotNull @Positive Long lineaId
+    @NotNull @Positive Long escuelaId
+    // @NotNull @Positive Long lineaId
 ) {}
