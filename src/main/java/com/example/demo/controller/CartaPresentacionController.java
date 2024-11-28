@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +29,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/cartapresentacion")
+@RequestMapping("/carta")
 @PreAuthorize("hasRole('PRACTICANTE')") 
 
 @RequiredArgsConstructor
@@ -120,8 +122,7 @@ public class CartaPresentacionController {
             }
 
             // Obtener el representante de la empresa
-            Representante representante = representanteRepository.findByEmpresa(ppp.getEmpresa())
-                    .orElseThrow(() -> new RuntimeException("Representante no encontrado"));
+            Representante representante = obtenerRepresentante(ppp.getEmpresa());
 
             CartaPresentacionResponseDto response = new CartaPresentacionResponseDto(
                 ppp.getEmpresa().getRuc(),
@@ -144,6 +145,14 @@ public class CartaPresentacionController {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error al obtener la carta de presentación: " + e.getMessage());
         }
+    }
+
+    private Representante obtenerRepresentante(Empresa empresa) {
+        List<Representante> representantes = representanteRepository.findByEmpresa(empresa);
+        if (representantes.isEmpty()) {
+            throw new RuntimeException("No se encontró representante para la empresa");
+        }
+        return representantes.get(0);  // Retorna el primer representante
     }
 
 }

@@ -24,6 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import java.util.Set;
+
 @Slf4j
 
 @Service
@@ -35,7 +40,6 @@ public class PPPService {
     private final PPPMapper pppMapper;
     private final EmpresaService empresaService;
     private final AreaPracticasService areaPracticasService;
-    private final RepresentanteService representanteService;  // Añadir esta línea
     private final PracticanteRepository practicanteRepository;
     private final LineaService lineaService;
 
@@ -139,59 +143,63 @@ public class PPPService {
     }
 
   public PPPDto guardarDatosPPP(Long pppId, DatosPPPDto datos) {
-	if (!validarDatosPPP(datos)) {
-		throw new RuntimeException("Datos inválidos o incompletos");
-	}
-
+	validateDatosPPP(datos); // Nuevo método de validación
 	
-        PPP ppp = pppRepository.findById(pppId)
-            .orElseThrow(() -> new RuntimeException("PPP no encontrada"));
-
-        if (!ppp.getEstado().equals(EstadoPPP.SIN_CARTA.getValor())) {
-            throw new RuntimeException("La PPP debe estar en estado SIN_CARTA");
-        }
-
         try {
-            // 1. Crear/Actualizar Empresa
+            PPP ppp = pppRepository.findById(pppId)
+                .orElseThrow(() -> new RuntimeException("PPP no encontrada"));
+
+            if (!ppp.getEstado().equals(EstadoPPP.SIN_CARTA.getValor())) {
+                throw new RuntimeException("La PPP debe estar en estado SIN_CARTA");
+            }
+
+            // 1. Crear y guardar empresa
             Empresa empresa = new Empresa();
             empresa.setRazonSocial(datos.getRazonSocial());
             empresa.setDireccion(datos.getDireccion());
             empresa.setRuc(datos.getRuc());
             empresa.setDescripcion(datos.getDescripcion());
-            empresa = empresaService.save(empresa);
 
-            // 2. Crear Area Prácticas
-            AreaPracticas area = new AreaPracticas();
-            area.setNombre(datos.getNombreArea());
-            area.setDescripcion(datos.getDescripcionArea());
-            area = areaPracticasService.save(area);
-
-            // 3. Crear Representante
+            // 2. Crear representante y establecer relación bidireccional
             Representante representante = new Representante();
             representante.setNombre(datos.getNombreRepresentante());
             representante.setApellido(datos.getApellidoRepresentante());
             representante.setCargo(datos.getCargoRepresentante());
             representante.setTelefono(datos.getTelefonoRepresentante());
             representante.setCorreo_elec(datos.getCorreoRepresentante());
-            representante.setEmpresa(empresa);
-            representanteService.save(representante);
+            
+            // Establecer relación bidireccional
+            empresa.addRepresentante(representante);
+            
+            // 3. Guardar empresa (cascadeará al representante)
+            empresa = empresaService.save(empresa);
 
-            // 4. Actualizar PPP
+            // 4. Crear y guardar área
+            AreaPracticas area = new AreaPracticas();
+            area.setNombre(datos.getNombreArea());
+            area.setDescripcion(datos.getDescripcionArea());
+            area = areaPracticasService.save(area);
+
+            // 5. Actualizar PPP
             ppp.setEmpresa(empresa);
             ppp.setArea_practicas(area);
             ppp.setEstado(EstadoPPP.PENDIENTE.getValor());
 
-
-if (datos.getNombreLinea() != null && !datos.getNombreLinea().isEmpty()) {
+            // 6. Asignar línea si existe
+            if (datos.getNombreLinea() != null && !datos.getNombreLinea().isEmpty()) {
                 Linea linea = lineaService.findByNombre(datos.getNombreLinea())
                     .orElseThrow(() -> new RuntimeException("Línea no encontrada: " + datos.getNombreLinea()));
                 ppp.setLinea(linea);
             }
 
-
+            // 7. Guardar PPP actualizada
+            ppp = pppRepository.save(ppp);
             
-            return pppMapper.toDto(pppRepository.save(ppp));
+            // 8. Mapear a DTO y retornar
+            return pppMapper.toDto(ppp);
+
         } catch (Exception e) {
+            log.error("Error guardando datos de PPP: ", e);
             throw new RuntimeException("Error al guardar los datos: " + e.getMessage());
         }
     }
@@ -207,37 +215,19 @@ if (datos.getNombreLinea() != null && !datos.getNombreLinea().isEmpty()) {
                !ppp.getEmpresa().getRepresentantes().isEmpty();
     }
 
-	private boolean validarDatosPPP(DatosPPPDto datos) {
-        // Validar datos de empresa
-        if (datos.getRazonSocial() == null || datos.getRazonSocial().trim().isEmpty() ||
-            datos.getRuc() == null || !validarRuc(datos.getRuc()) ||
-            datos.getDireccion() == null || datos.getDireccion().trim().isEmpty()) {
-            return false;
+    private void validateDatosPPP(DatosPPPDto datos) {
+        if (datos == null) {
+            throw new RuntimeException("Los datos no pueden ser nulos");
         }
 
-        // Validar datos de área
-        if (datos.getNombreArea() == null || datos.getNombreArea().trim().isEmpty() ||
-            datos.getDescripcionArea() == null || datos.getDescripcionArea().trim().isEmpty()) {
-            return false;
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<DatosPPPDto>> violations = validator.validate(datos);
+        
+        if (!violations.isEmpty()) {
+            String errorMessages = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+            throw new RuntimeException("Errores de validación: " + errorMessages);
         }
-
-        // Validar datos de representante
-        if (datos.getNombreRepresentante() == null || datos.getNombreRepresentante().trim().isEmpty() ||
-            datos.getCargoRepresentante() == null || datos.getCargoRepresentante().trim().isEmpty() ||
-            datos.getCorreoRepresentante() == null || !validarEmail(datos.getCorreoRepresentante())) {
-            return false;
-        }
-
-        return true;
     }
-
-    private boolean validarRuc(String ruc) {
-        return ruc != null && ruc.length() == 11 && ruc.matches("\\d+");
-    }
-
-    private boolean validarEmail(String email) {
-        return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
-    }
-
-
 }

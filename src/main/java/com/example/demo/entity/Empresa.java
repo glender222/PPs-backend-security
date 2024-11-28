@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import java.util.Set;
+import java.util.HashSet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -44,7 +45,17 @@ public class Empresa {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "empresa")
     @JsonIgnore
-    private Set<Representante> representantes;
+    private Set<Representante> representantes = new HashSet<>(); // Inicializar aquí
+
+    // Método helper para mantener la relación bidireccional
+    public void addRepresentante(Representante representante) {
+        if (representantes == null) {
+            representantes = new HashSet<>();
+        }
+        representantes.add(representante);
+        representante.setEmpresa(this);
+    }
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "empresa")
     @JsonIgnore
     private Set<PPP> practicas;
